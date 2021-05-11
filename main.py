@@ -73,75 +73,81 @@ class spotifyApp():
             grow = 2
 
             for trackid in trackiddata:
-                print('--------------------------------')
+                print('------------{}------------'.format(grow - 1))
                 print("----------trackid:{}".format(trackid))
-                try:
-                    # get Popularity
-                    pheaders = {'Origin': 'https://open.spotify.com',
+
+                while True:
+                    try:
+                        # get Popularity
+                        pheaders = {'Origin': 'https://open.spotify.com',
+                                    'Accept-Encoding': 'gzip, deflate, br',
+                                    'Accept-Language': 'en',
+                                    'Authorization': 'Bearer ' + self.accessToken,
+                                    'Accept': 'application/json',
+                                    # 'Referer': 'https://open.spotify.com/search/albums/year^%^3A1980',
+                                    'Authority': 'api.spotify.com',
+                                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36'}
+                        varhref = 'https://api.spotify.com/v1/tracks/{}'.format(trackid)
+
+                        presponse = requests.get(
+                            varhref, headers=pheaders).json()
+
+                        albumid = presponse['album']['id']
+                        print('----------albumid:{}'.format(albumid))
+
+                        headers = {'Origin': 'https://open.spotify.com',
                                 'Accept-Encoding': 'gzip, deflate, br',
                                 'Accept-Language': 'en',
                                 'Authorization': 'Bearer ' + self.accessToken,
                                 'Accept': 'application/json',
                                 # 'Referer': 'https://open.spotify.com/search/albums/year^%^3A1980',
                                 'Authority': 'api.spotify.com',
-                                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36'}
-                    varhref = 'https://api.spotify.com/v1/tracks/{}'.format(trackid)
+                                'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36'}
 
-                    presponse = requests.get(
-                        varhref, headers=pheaders).json()
+                        response = requests.get('https://api.spotify.com/v1/albums/{}'.format(albumid), headers=pheaders).json()
 
-                    albumid = presponse['album']['id']
-                    print('----------albumid:{}'.format(albumid))
+                        try:
+                            varpopularity = response['popularity']
+                        except:
+                            varpopularity = 0
 
-                    headers = {'Origin': 'https://open.spotify.com',
-                            'Accept-Encoding': 'gzip, deflate, br',
-                            'Accept-Language': 'en',
-                            'Authorization': 'Bearer ' + self.accessToken,
-                            'Accept': 'application/json',
-                            # 'Referer': 'https://open.spotify.com/search/albums/year^%^3A1980',
-                            'Authority': 'api.spotify.com',
-                            'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36'}
+                        try:
+                            varpopularity = response['popularity']
+                        except:
+                            varpopularity = 0
 
-                    response = requests.get('https://api.spotify.com/v1/albums/{}'.format(albumid), headers=pheaders).json()
+                        try:
+                            varartist = response['artists'][0]['name']
+                        except:
+                            varartist = ''
 
-                    try:
-                        varpopularity = response['popularity']
+                        try:
+                            varalbum = response['name']
+                        except:
+                            varalbum = ''
+
+                        try:
+                            varurl = response['external_urls']['spotify']
+                        except:
+                            varurl = ''
+
+                        print("Year:{}, Artist:{}, Album:{}, Url:{}, Popularity:{}".format(
+                            year, varartist, varalbum, varurl, varpopularity))
+
+                        sheet.cell(row=grow, column=1).value = year
+                        sheet.cell(row=grow, column=2).value = varartist
+                        sheet.cell(row=grow, column=3).value = varalbum
+                        sheet.cell(row=grow, column=4).value = varurl
+                        sheet.cell(
+                            row=grow, column=5).value = varpopularity
+                        grow += 1
+
                     except:
-                        varpopularity = 0
+                        print("Request Error!")
+                        time.sleep(1)
+                        continue
+                    break
 
-                    try:
-                        varpopularity = response['popularity']
-                    except:
-                        varpopularity = 0
-
-                    try:
-                        varartist = response['artists'][0]['name']
-                    except:
-                        varartist = ''
-
-                    try:
-                        varalbum = response['name']
-                    except:
-                        varalbum = ''
-
-                    try:
-                        varurl = response['external_urls']['spotify']
-                    except:
-                        varurl = ''
-
-                    print("Year:{}, Artist:{}, Album:{}, Url:{}, Popularity:{}".format(
-                        year, varartist, varalbum, varurl, varpopularity))
-
-                    sheet.cell(row=grow, column=1).value = year
-                    sheet.cell(row=grow, column=2).value = varartist
-                    sheet.cell(row=grow, column=3).value = varalbum
-                    sheet.cell(row=grow, column=4).value = varurl
-                    sheet.cell(
-                        row=grow, column=5).value = varpopularity
-                    grow += 1
-
-                except:
-                    print("Request Error!")
 
             wb.save(outputfile)
 
