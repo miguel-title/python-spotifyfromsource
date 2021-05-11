@@ -17,6 +17,8 @@ else:
 from glob import glob
 import ntpath
 
+import time
+
 
 class spotifyApp():
     def __init__(self):
@@ -63,7 +65,7 @@ class spotifyApp():
                     continue
 
                 trackiddata.append(str(sheet_inp.cell(row=row, column=3).value).replace(
-                    'spotify:track:', '').strip())
+                    'spotify:track:', '').replace('https://open.spotify.com/track/', '').strip())
                 year = sheet_inp.cell(row=row, column=14).value
 
             wb = openpyxl.Workbook()
