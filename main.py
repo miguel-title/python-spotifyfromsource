@@ -114,22 +114,17 @@ class spotifyApp():
                             varpopularity = 0
 
                         try:
-                            varpopularity = response['popularity']
-                        except:
-                            varpopularity = 0
-
-                        try:
-                            varartist = response['artists'][0]['name']
+                            varartist = response['artists'][0]['name'].encode('utf-8').strip()
                         except:
                             varartist = ''
 
                         try:
-                            varalbum = response['name']
+                            varalbum = response['name'].encode('utf-8').strip()
                         except:
                             varalbum = ''
 
                         try:
-                            varurl = response['external_urls']['spotify']
+                            varurl = response['external_urls']['spotify'].encode('utf-8').strip()
                         except:
                             varurl = ''
 
@@ -144,8 +139,8 @@ class spotifyApp():
                             row=grow, column=5).value = varpopularity
                         grow += 1
 
-                    except:
-                        print("Request Error!")
+                    except Exception as e:
+                        print("Request Error:{}".format(str(e)))
                         time.sleep(1)
                         continue
                     break
